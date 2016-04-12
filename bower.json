@@ -1,0 +1,41 @@
+{
+  "name": "democracy-preview",
+  "authors": [
+    "Samuli Hyttinen <https://github.com/obscurage>",
+    "Severi Salminen <https://github.com/sevesalm>",
+    "Vitaly Ivanov <https://github.com/VitalyIvanov>",
+    "Rikuoja <https://github.com/Rikuoja>"
+  ],
+  "description": "JQuery+Leaflet app for previewing location data provided by the Helsinki democracy (Kerro kantasi) API, based on City Feedback Hub",
+  "main": [
+    "base.html",
+    "assets/js/map.js"
+  ],
+  "moduleType": [],
+  "keywords": [
+    "democracy",
+    "gis",
+    "leaflet",
+    "heatmap"
+  ],
+  "license": "MIT",
+  "homepage": "dev.hel.fi/projects/kerro-kantasi",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap-datetimepicker": "~0.0.11",
+    "animate.css": "~3.5.1",
+    "leaflet.heat": "Leaflet.heat#*",
+    "leaflet.markercluster": "~0.5.0",
+    "proj4": "~2.3.14",
+    "Proj4Leaflet": "proj4leaflet#~0.7.2",
+    "Leaflet.EasyButton": "~1.2.0",
+    "Leaflet.MakiMarkers": "~1.0.1",
+    "remarkable-bootstrap-notify": "~3.1.3"
+  }
+}

@@ -1,0 +1,251 @@
+<!-- HTML and js from City Feedback Hub
+github.com/hep7agon/city-feedback-hub -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kerro kantasi -esikatselu</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
+    <script src="bower_components/jquery/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/moment-with-locales.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="bower_components/bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" />
+    <script src="bower_components/bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
+
+    <!-- our own scripts and styles -->
+    <link rel="stylesheet" type="text/css" href="assets/styles/style.css" />
+    <script src="assets/js/calendar.js"></script>
+
+    <!-- Load global defaults for bootstrap-notify plugin -->
+    <link rel="stylesheet" href="bower_components/animate.css/animate.min.css"/>
+    <script type="text/javascript" src="bower_components/remarkable-bootstrap-notify/bootstrap-notify.min.js"></script>
+    <script type="text/javascript" src="assets/js/notify_defaults.js"></script>
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css"/>
+    <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+    <script src="bower_components/leaflet.heat/dist/leaflet-heat.js"></script>
+    <script src="bower_components/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+    <link rel="stylesheet" href="bower_components/leaflet.markercluster/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="bower_components/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+    <script type="text/javascript" src="bower_components/proj4/dist/proj4.js" ></script>
+    <script type="text/javascript" src="bower_components/Proj4Leaflet/src/proj4leaflet.js" ></script>
+    <link rel="stylesheet" href="bower_components/Leaflet.EasyButton/src/easy-button.css" />
+    <script type="text/javascript" src="bower_components/Leaflet.EasyButton/src/easy-button.js" ></script>
+    <script type="text/javascript" src="bower_components/Leaflet.MakiMarkers/Leaflet.MakiMarkers.js"></script>
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.0/css/bootstrap-toggle.min.css" rel="stylesheet">
+    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.0/js/bootstrap-toggle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
+
+</head>
+<body>
+<div class="container-fluid">
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand {% navbar_link_class request 'mainpage' %}" href="/">CFH</a>
+            </div>
+            <div class="collapse navbar-collapse" id="myNavbar">
+                <ul class="nav navbar-nav">
+                    <li class="{% navbar_link_class request 'feedback_form' %}"><a href="{% url 'feedback_form' %}">Anna palaute</a></li>
+                    <li class="{% navbar_link_class request 'feedback_list' %}" ><a href="{% url 'feedback_list' %}">Listaa palautteet</a></li>
+                    <li class="{% navbar_link_class request 'map' %}" ><a href="base.html">Kartta</a></li>
+                    <li class="{% navbar_link_class request 'statistics department charts' %}" ><a href="{% url 'statistics' %}">Tilastotiedot</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="{% navbar_link_class request 'about' %}" ><a href="{% url 'about' %}">Tietoja</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <style>
+        .space {
+            padding: 10px;
+        }
+    </style>
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper">
+            <div class="row">
+                <div class="col-xs-4">
+                    <label for="markers">Palautteet</label>
+                </div>
+                <div class="col-xs-8 toggle-switch">
+                    <input type="checkbox" data-toggle="toggle" id="toggle-markers" data-width="100" checked>
+                </div>
+            </div>
+
+            <div class="space"></div>
+
+            <div class="row">
+                <div class="col-xs-4">
+                    <label for="heatmap">Tiheyskartta</label>
+                </div>
+                <div class="col-xs-8 toggle-switch">
+                    <input type="checkbox" data-toggle="toggle" id="toggle-heatmap" data-width="100">
+                </div>
+            </div>
+
+            <div class="space"></div>
+
+            <!--<div class="row">
+                <div class="col-xs-12">
+                    <label for="status">Tila</label>
+                    <select class="form-control" id="status" name="status">
+                        <option value="">Kaikki</option>
+                        <option selected value="open">Avoin</option>
+                        <option value="closed">Suljettu</option>
+                    </select>
+                </div>
+            </div>-->
+
+            <!--<div class="row">
+                <div class="col-xs-12">
+                    <label for="service_code">Aihealue</label>
+                    <select class="form-control" name="service_code" id="service_code">
+                        <option selected="selected" value="">Kaikki</option>
+                        {% for service in services %}
+                        <option value="{{ service.service_code }}">{{ service.service_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>-->
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <label for="feedback-type">Palautteen tyyppi</label>
+                    <select class="form-control" name="feedback-type" id="feedback-type">
+                        <option selected="selected" value="">Kaikki</option>
+                        <option value="bench">Penkki tai tuoli</option>
+                        <option value="flowers">Kukka-astia</option>
+                        <option value="trash">Roska-astia</option>
+                        <option value="comment">Kommentti</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="space"></div>
+
+            <!--<div class="row">
+                <div class="col-xs-12">
+                    <label for="datepicker-start">Alku</label>
+                    <div class='input-group date' id='datepicker-start'>
+                        <input type='text' class="form-control" />
+					<span class="input-group-addon" style="cursor:pointer">
+						<span class="glyphicon glyphicon-calendar"></span>
+					</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <label for="datepicker-end">Loppu</label>
+                    <div class='input-group date' id='datepicker-end'>
+                        <input type='text' class="form-control" />
+					<span class="input-group-addon" style="cursor:pointer">
+						<span class="glyphicon glyphicon-calendar"></span>
+					</span>
+                    </div>
+                </div>
+            </div>-->
+
+            <div class="space"></div>
+
+            <button
+                    id="submitButton"
+                    class="btn btn-primary btn-lg btn-block"
+                    type="submit" value="apply"
+                    onclick="sendRequest()"
+                    style="position: relative;">
+                Päivitä
+            </button>
+
+            <div class="space"></div>
+
+        </div>
+        <div id="toggleButtonContainer" class="toggled">
+            <button id="toggleButton" class="btn btn-primary btn-block" onclick="onToggleMenu()">
+                <span id="toggleButtonIcon" class="glyphicon glyphicon-chevron-right"></span>
+            </button>
+        </div>
+        <div id="map" class="map-main"></div>
+    </div>
+    <script src="assets/js/map.js"></script>
+    <script>
+        $("body").css("margin", 0);
+
+        // Automatically fetch user location and center
+        getUserLocation();
+
+        L.easyButton('<span class="glyphicon glyphicon-map-marker"></span>', function () {
+            getUserLocation();
+        }, {position: 'topright'}).addTo(map)
+
+        defaultQuery();
+
+        // Spinner for when loading data
+        var opts = {
+            lines: 11,
+            length: 3,
+            width: 2,
+            radius: 4,
+            zIndex: 2,
+            left: '35%',
+            color: '#fff'
+        };
+        var spinner = new Spinner(opts);
+
+        function sendRequest() {
+            spinner.spin(document.getElementById("submitButton"));
+
+            var params = {};
+
+            /*var start_date = $("#datepicker-start").data("DateTimePicker").date().toISOString();
+            params["start_date"] = start_date;
+            var end_date = $("#datepicker-end").data("DateTimePicker").date().toISOString();
+            params["end_date"] = end_date;
+
+            if ($("#status").val() !== "")
+                params["status"] = $("#status").val();
+
+            if ($("#service_code").val() !== "")
+                params["service_code"] = $("#service_code").val();*/
+
+            if ($("#feedback-type").val() !== "")
+                params["feedback_type"] = $("#feedback-type").val();
+
+            var markersVisible = $('#toggle-markers').prop('checked') ? true : false;
+            var heatmapVisible = $('#toggle-heatmap').prop('checked') ? true : false;
+
+            $('#submitButton').attr("disabled", true);
+
+            getData(params, markersVisible, heatmapVisible, function() {
+                spinner.stop();
+                $('#submitButton').attr("disabled", false);
+            });
+        }
+
+        $(function() {
+            $('#toggle-markers').change(function() {
+                var show = $(this).prop('checked') ? true : false;
+                showMarkers(show);
+            })
+        })
+
+        $(function() {
+            $('#toggle-heatmap').change(function() {
+                var show = $(this).prop('checked') ? true : false;
+                showHeatmap(show);
+            })
+        })
+    </script>
+</div>
+</body>
+</html>
