@@ -1,5 +1,6 @@
 /* HTML and js from City Feedback Hub
 github.com/hep7agon/city-feedback-hub */
+var apiBase = "http://localhost:8000/v1"
 
 "use strict";
 
@@ -24,10 +25,10 @@ var feedbackTypes = {
     "option-2-2": "trash",
     "comment": "comment"};
 var feedbackCaptions = {
-    bench: "Penkki tai tuoli",
-    flowers: "Kukka-astia",
-    trash: "Roska-astia",
-    comment: "Kommentti"};
+    bench: "Istuimet",
+    flowers: "Kukat ja istutukset",
+    trash: "Jäteastiat",
+    comment: "Kommentit"};
 var feedbackIcons = {
     bench: L.MakiMarkers.icon({icon: "circle", color: "#D4251C", size: "m"}),
     flowers: L.MakiMarkers.icon({icon: "circle", color: "#16A427", size: "m"}),
@@ -51,10 +52,9 @@ function defaultQuery() {
     params["start_date"] = start_date;
 
     var end_date = moment().toISOString();
-    params["end_date"] = end_date;
+    params["end_date"] = end_date;*/
 
-    params["status"] = "open";*/
-
+    params["hearing"] = "budjetointipeli";
     getData(params, true);
 }
 
@@ -133,84 +133,97 @@ function clearMarkers() {
 }
 
 function getData(params, markersVisible, heatmapVisible, onSuccess) {
-    $.getJSON("http://localhost:8000/v1/hearing/budjetointipeli/sections/iHZY89SlYX99Uz2qh4XZkgcJtShlQv3E/comments/", params, function (data) {
-        clearMarkers();
+    console.log(params);
+    var hearingUrl = apiBase + "/hearing/" + params.hearing;
+    $.getJSON(hearingUrl, params, function (hearing_data) {
+        // fetch the hearing section id that has plugin data
+        $.each(hearing_data.sections, function (key, section) {
+            // fetch data for all plugin sections
+            if (section.plugin_identifier == "mapdon-hkr") {
+                console.log(section.plugin_data);
+                var dataUrl = hearingUrl + "/sections/" + section.id + "/comments";
+                $.getJSON(dataUrl, params, function (data) {
+                    clearMarkers();
 
-        $.each(data, function (key, comment) {
-            var plugin_data = $.parseJSON(comment.plugin_data);
+                    $.each(data, function (key, comment) {
+                        var plugin_data = $.parseJSON(comment.plugin_data);
 
-            $.each(plugin_data, function (key, feedback) {
-                if (params.feedback_type) {
-                    if (feedbackTypes[feedback.key] != params.feedback_type) {
-                        return
+                        $.each(plugin_data, function (key, feedback) {
+                            if (params.feedback_type) {
+                                if (feedbackTypes[feedback.key] != params.feedback_type) {
+                                    return
+                                }
+                            }
+                            var popupOptions =
+                            {
+                                'maxWidth': '250',
+                                'maxHeight': '250',
+                                'className': 'custom',
+                                'autoPanPadding': L.point(10, 25)
+                            }
+
+                            // Generate popup-window content
+                            var popupContent = "";
+
+                            popupContent += "<h4 id=\"feedback_title\"></h4>" +
+                                "<div id=\"feedback_requested_datetime\"></div>" +
+                                "<p id=\"feedback_description\"></p>" +
+                                "<a id=\"feedback_details\" href=\"\"></a>";
+
+                            // Initiate marker of feedback
+                            var marker = L.marker([feedback.lat, feedback.lng]).bindPopup(popupContent, popupOptions).addTo(markersLayer);
+                            marker.feedback = feedback;
+                            markerCoordinates.push([feedback.lat, feedback.lng]);
+
+                            // Assign icon to marker based on feedback type
+                            try {
+                                marker.setIcon(feedbackIcons[feedbackTypes[feedback.key]]);
+                            }
+                            catch (fail) {
+                                marker.setIcon(unknownFeedbackIcon);
+                            }
+
+                            // On click, fill the popup with feedback details
+                            marker.on('click', function (e) {
+                                // Truncate feedback details so that they fit the popup window
+                                var title = e.target.feedback.value;
+                                title = truncate_string(title, 50);
+
+                                $('#feedback_title').text(title);
+                                $('.feedback_list_vote_badge').text(e.target.feedback.vote_counter);
+                                $('.feedback_list_vote_icon').attr("id", e.target.feedback.service_request_id);
+                                var datetime = moment(e.target.feedback.requested_datetime).fromNow();
+                                $('#feedback_requested_datetime').text("Lisätty: " + datetime);
+
+                                var desc = e.target.feedback.value;
+                                // desc = truncate_string(desc, 170);
+
+                                $('#feedback_description').text(desc);
+                                var feedback_url = "/feedbacks/" + e.target.feedback.id;
+                                // $('#feedback_details').text("Lisää");
+                                $('#feedback_details').attr("href", feedback_url);
+                                $('#feedback_info').css("visibility", "visible");
+                            });
+                        });
+                    });
+                }).always(function () {
+                    if (onSuccess) {
+                        onSuccess();
                     }
-                }
-                var popupOptions =
-                {
-                    'maxWidth': '250',
-                    'maxHeight': '250',
-                    'className': 'custom',
-                    'autoPanPadding': L.point(10, 25)
-                }
+                }).done(function () {
+                    if (markersVisible) {
+                        showMarkers(markersVisible);
+                    }
 
-                // Generate popup-window content
-                var popupContent = "";
-
-                popupContent += "<h4 id=\"feedback_title\"></h4>" +
-                    "<div id=\"feedback_requested_datetime\"></div>" +
-                    "<p id=\"feedback_description\"></p>" +
-                    "<a id=\"feedback_details\" href=\"\"></a>";
-
-                // Initiate marker of feedback
-                var marker = L.marker([feedback.lat, feedback.lng]).bindPopup(popupContent, popupOptions).addTo(markersLayer);
-                marker.feedback = feedback;
-                markerCoordinates.push([feedback.lat, feedback.lng]);
-
-                // Assign icon to marker based on feedback type
-                try {
-                    marker.setIcon(feedbackIcons[feedbackTypes[feedback.key]]);
-                }
-                catch (fail) {
-                    marker.setIcon(unknownFeedbackIcon);
-                }
-
-                // On click, fill the popup with feedback details
-                marker.on('click', function (e) {
-                    // Truncate feedback details so that they fit the popup window
-                    var title = e.target.feedback.value;
-                    title = truncate_string(title, 50);
-
-                    $('#feedback_title').text(title);
-                    $('.feedback_list_vote_badge').text(e.target.feedback.vote_counter);
-                    $('.feedback_list_vote_icon').attr("id", e.target.feedback.service_request_id);
-                    var datetime = moment(e.target.feedback.requested_datetime).fromNow();
-                    $('#feedback_requested_datetime').text("Lisätty: " + datetime);
-
-                    var desc = e.target.feedback.value;
-                    // desc = truncate_string(desc, 170);
-
-                    $('#feedback_description').text(desc);
-                    var feedback_url = "/feedbacks/" + e.target.feedback.id;
-                    // $('#feedback_details').text("Lisää");
-                    $('#feedback_details').attr("href", feedback_url);
-                    $('#feedback_info').css("visibility", "visible");
+                    if (heatmapVisible) {
+                        showHeatmap(heatmapVisible);
+                    }
+                    addLegend(params);
                 });
-            });
+            }
         });
-    }).always(function () {
-        if (onSuccess) {
-            onSuccess();
-        }
-    }).done(function () {
-        if (markersVisible) {
-            showMarkers(markersVisible);
-        }
-
-        if (heatmapVisible) {
-            showHeatmap(heatmapVisible);
-        }
-        addLegend(params);
     });
+
 }
 
 function truncate_string(string, max_length) {

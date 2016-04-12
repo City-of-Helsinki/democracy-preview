@@ -94,16 +94,14 @@ github.com/hep7agon/city-feedback-hub -->
 
             <div class="space"></div>
 
-            <!--<div class="row">
+            <div class="row">
                 <div class="col-xs-12">
-                    <label for="status">Tila</label>
-                    <select class="form-control" id="status" name="status">
-                        <option value="">Kaikki</option>
-                        <option selected value="open">Avoin</option>
-                        <option value="closed">Suljettu</option>
+                    <label for="hearing">Kuuleminen</label>
+                    <select class="form-control" id="hearing" name="hearing">
+                        <option selected value="budjetointipeli">Katujen ja puistojen ylläpitotöiden budjetointipeli</option>
                     </select>
                 </div>
-            </div>-->
+            </div>
 
             <!--<div class="row">
                 <div class="col-xs-12">
@@ -122,10 +120,10 @@ github.com/hep7agon/city-feedback-hub -->
                     <label for="feedback-type">Palautteen tyyppi</label>
                     <select class="form-control" name="feedback-type" id="feedback-type">
                         <option selected="selected" value="">Kaikki</option>
-                        <option value="bench">Penkki tai tuoli</option>
-                        <option value="flowers">Kukka-astia</option>
-                        <option value="trash">Roska-astia</option>
-                        <option value="comment">Kommentti</option>
+                        <option value="bench">Istuimet</option>
+                        <option value="flowers">Kukat ja istutukset</option>
+                        <option value="trash">Jäteastiat</option>
+                        <option value="comment">Kommentit</option>
                     </select>
                 </div>
             </div>
@@ -212,11 +210,12 @@ github.com/hep7agon/city-feedback-hub -->
             var end_date = $("#datepicker-end").data("DateTimePicker").date().toISOString();
             params["end_date"] = end_date;
 
-            if ($("#status").val() !== "")
-                params["status"] = $("#status").val();
 
             if ($("#service_code").val() !== "")
                 params["service_code"] = $("#service_code").val();*/
+
+            if ($("#hearing").val() !== "")
+                params["hearing"] = $("#hearing").val();
 
             if ($("#feedback-type").val() !== "")
                 params["feedback_type"] = $("#feedback-type").val();
