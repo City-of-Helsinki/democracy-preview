@@ -133,15 +133,17 @@ function clearMarkers() {
 }
 
 function getData(params, markersVisible, heatmapVisible, onSuccess) {
-    console.log(params);
     var hearingUrl = apiBase + "/hearing/" + params.hearing;
     $.getJSON(hearingUrl, params, function (hearing_data) {
         // fetch the hearing section id that has plugin data
         $.each(hearing_data.sections, function (key, section) {
             // fetch data for all plugin sections
             if (section.plugin_identifier == "mapdon-hkr") {
-                console.log(section.plugin_data);
-                var dataUrl = hearingUrl + "/sections/" + section.id + "/comments";
+                // console.log(section.plugin_data);
+                var dataUrl = hearingUrl + "/sections/" + section.id + "/comments/?include=plugin_data";
+                if (params.auth_code) {
+                    dataUrl += "&auth_code=" + params.auth_code;
+                }
                 $.getJSON(dataUrl, params, function (data) {
                     clearMarkers();
 
