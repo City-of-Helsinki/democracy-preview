@@ -1,6 +1,6 @@
 /* HTML and js from City Feedback Hub
 github.com/hep7agon/city-feedback-hub */
-var apiBase = "http://localhost:8000/v1"
+var apiBase = "http://api.hel.fi/kerrokantasi/v1"
 
 "use strict";
 
