@@ -249,7 +249,7 @@ function getUserLocation(e) {
             else {
                 userLocation = new L.marker(newLocation, {icon: centerIcon}).addTo(map);
             }
-            map.panTo(newLocation);
+            // map.panTo(newLocation);
         }.bind(this));
     }
     else {
