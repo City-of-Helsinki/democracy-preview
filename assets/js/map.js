@@ -142,7 +142,7 @@ function getData(params, markersVisible, heatmapVisible, onSuccess) {
                 // console.log(section.plugin_data);
                 var dataUrl = hearingUrl + "/sections/" + section.id + "/comments/?include=plugin_data";
                 if (params.auth_code) {
-                    dataUrl += "&auth_code=" + params.auth_code;
+                    dataUrl += "&authorization_code=" + params.auth_code;
                 }
                 $.getJSON(dataUrl, params, function (data) {
                     clearMarkers();
