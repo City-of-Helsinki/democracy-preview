@@ -277,7 +277,7 @@ function showHeatmap(show) {
         heatLayer = L.heatLayer(markerCoordinates, {
             minOpacity: 0.4,
             maxZoom: 18,
-            radius: 30,
+            radius: 40,
             blur: 20,
         }).addTo(map);
     }
