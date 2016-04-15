@@ -168,7 +168,8 @@ function getData(params, markersVisible, heatmapVisible, onSuccess) {
                             var popupContent = "";
 
                             popupContent += "<h4 id=\"feedback_title\"></h4>" +
-                                "<div id=\"feedback_requested_datetime\"></div>" +
+                                "<div id=\"feedback_number\"></div>" +
+                                "<div id=\"feedback_given\"></div>" +
                                 "<p id=\"feedback_description\"></p>" +
                                 "<a id=\"feedback_details\" href=\"\"></a>";
 
@@ -192,10 +193,12 @@ function getData(params, markersVisible, heatmapVisible, onSuccess) {
                                 title = truncate_string(title, 50);
 
                                 $('#feedback_title').text(title);
-                                $('.feedback_list_vote_badge').text(e.target.feedback.vote_counter);
-                                $('.feedback_list_vote_icon').attr("id", e.target.feedback.service_request_id);
-                                var datetime = moment(e.target.feedback.requested_datetime).fromNow();
-                                $('#feedback_requested_datetime').text("Lisätty: " + datetime);
+                                //$('.feedback_list_vote_badge').text(e.target.feedback.vote_counter);
+                                //$('.feedback_list_vote_icon').attr("id", e.target.feedback.service_request_id);
+                                $('#feedback_number').text("Kommentoija: " + comment.id);
+
+                                var datetime = moment(comment.created_at).fromNow();
+                                $('#feedback_given').text("Kommentti annettu: " + datetime);
 
                                 var desc = e.target.feedback.value;
                                 // desc = truncate_string(desc, 170);
@@ -203,7 +206,7 @@ function getData(params, markersVisible, heatmapVisible, onSuccess) {
                                 $('#feedback_description').text(desc);
                                 var feedback_url = "/feedbacks/" + e.target.feedback.id;
                                 // $('#feedback_details').text("Lisää");
-                                $('#feedback_details').attr("href", feedback_url);
+                                // $('#feedback_details').attr("href", feedback_url);
                                 $('#feedback_info').css("visibility", "visible");
                             });
                         });
