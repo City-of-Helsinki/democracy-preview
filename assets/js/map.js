@@ -111,7 +111,7 @@ function getMarkersLayer() {
 }
 
 var markersLayer = getMarkersLayer();
-var map = initMap('servicemap');
+var map = initMap('series');
 
 function initMap(background) {
     var indexOfResolutionFour = mapLayers[background].resolutions.indexOf(4);
