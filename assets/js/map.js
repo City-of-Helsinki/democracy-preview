@@ -34,49 +34,67 @@ var unknownFeedbackIcon = L.MakiMarkers.icon({icon: "circle", color: "#FFC61E", 
 var centerIcon = L.MakiMarkers.icon({icon: "circle", color: "#0072C6", size: "l"});
 
 var HelsinkiCoord = {lat: 60.240, lng: 25.090};
-var mapLayers = {servicemap:
-                    {url: "http://geoserver.hel.fi/mapproxy/wmts/osm-sm/etrs_tm35fin/{z}/{x}/{y}.png",
-                    attribution: 'Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
-                    crs: 'tm35'},
-                series:
-                    {url: "http://kartta.hel.fi/ws/geoserver/gwc/service/tms/1.0.0/kanslia_palvelukartta:Karttasarja@ETRS-GK25@gif/{z}/{x}/{y}.gif",
-                    attribution: 'Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
-                    crs: 'gk25'},
-                ortho:
-                    {url: "http://kartta.hel.fi/ws/geoserver/gwc/service/tms/1.0.0/kanslia_palvelukartta:Ortoilmakuva_2013_PKS@ETRS-GK25@jpeg/{z}/{x}/{y}.jpeg",
-                    attribution: 'Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
-                    crs: 'gk25'}
-}
-var projections = {'tm35':
-                    function () {
-                        var bounds, crsName, crsOpts, originNw, projDef;
-                        crsName = 'EPSG:3067';
-                        projDef = '+proj=utm +zone=35 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs';
-                        bounds = L.bounds(L.point(-548576, 6291456), L.point(1548576, 8388608));
-                        originNw = [bounds.min.x, bounds.max.y];
-                        crsOpts = {
-                            resolutions: [8192, 4096, 2048, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 1, 0.5, 0.25, 0.125],
-                            bounds: bounds,
-                            transformation: new L.Transformation(1, -originNw[0], -1, originNw[1])
-                        };
-                        return new L.Proj.CRS(crsName, projDef, crsOpts);
-                    },
-                'gk25':
-                    function () {
-                        var bounds, crsName, crsOpts, projDef;
-                        crsName = 'EPSG:3879';
-                        projDef = '+proj=tmerc +lat_0=0 +lon_0=25 +k=1 +x_0=25500000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs';
-                        bounds = [25440000, 6630000, 25571072, 6761072];
-                        crsOpts = {
-                            resolutions: [256, 128, 64, 32, 16, 8, 4, 2, 1, 0.5, 0.25, 0.125, 0.0625, 0.03125],
-                            bounds: bounds
-                        };
-                        return new L.Proj.CRS(crsName, projDef, crsOpts);
-                    }
+var mapLayers = {
+    servicemap:
+        {protocol: 'wmts',
+        url: "http://geoserver.hel.fi/mapproxy/wmts/osm-sm/etrs_tm35fin/{z}/{x}/{y}.png",
+        attribution: 'Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+        crs: 'tm35',
+        resolutions: [8192, 4096, 2048, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 1, 0.5, 0.25, 0.125]},
+    series:
+        {protocol: 'tms',
+        url: "http://kartta.hel.fi/ws/geoserver/gwc/service/tms/1.0.0/kanslia_palvelukartta:Karttasarja@ETRS-GK25@gif/{z}/{x}/{y}.gif",
+        attribution: 'Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+        crs: 'gk25',
+        resolutions: [256, 128, 64, 32, 16, 8, 4, 2, 1, 0.5, 0.25, 0.125, 0.0625, 0.03125]},
+    ortho:
+        {protocol: 'tms',
+        url: "http://kartta.hel.fi/ws/geoserver/gwc/service/tms/1.0.0/kanslia_palvelukartta:Ortoilmakuva_2013_PKS@ETRS-GK25@jpeg/{z}/{x}/{y}.jpeg",
+        attribution: 'Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+        crs: 'gk25',
+        resolutions: [256, 128, 64, 32, 16, 8, 4, 2, 1, 0.5, 0.25, 0.125, 0.0625, 0.03125]}
+};
+var crsByProtocol = {
+    'wmts': L.Proj.CRS,
+    'tms': L.Proj.CRS.TMS};
+
+function projections(protocol, resolutions) {
+    return {'tm35':
+        function () {
+            var bounds, crsName, crsOpts, originNw, projDef;
+            crsName = 'EPSG:3067';
+            projDef = '+proj=utm +zone=35 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs';
+            bounds = L.bounds(L.point(-548576, 6291456), L.point(1548576, 8388608));
+            originNw = [bounds.min.x, bounds.max.y];
+            crsOpts = {
+                resolutions: resolutions,
+                bounds: bounds,
+                transformation: new L.Transformation(1, -originNw[0], -1, originNw[1])
+            };
+            return new crsByProtocol[protocol](crsName, projDef, crsOpts);
+        },
+        'gk25':
+        function () {
+            var bounds, crsName, crsOpts, projDef;
+            crsName = 'EPSG:3879';
+            projDef = '+proj=tmerc +lat_0=0 +lon_0=25 +k=1 +x_0=25500000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs';
+            bounds = [25440000, 6630000, 25571072, 6761072];
+            crsOpts = {
+                resolutions: resolutions
+            };
+            return new crsByProtocol[protocol](crsName, projDef, bounds, crsOpts);
+        }
+    }
 }
 
 function getMapLayer(name) {
-    return L.tileLayer(mapLayers[name].url, {
+    var tileLayer = {
+        'wmts': L.tileLayer,
+        'tms': function(url, opts) {
+            return new L.Proj.TileLayer.TMS(url, projections('tms', mapLayers[name].resolutions)[mapLayers[name].crs](), opts);
+        }
+    };
+    return tileLayer[mapLayers[name].protocol](mapLayers[name].url, {
         attribution: mapLayers[name].attribution,
         maxZoom: 18,
         continuousWorld: true,
@@ -95,6 +113,20 @@ function getMarkersLayer() {
 var markersLayer = getMarkersLayer();
 var map = initMap('servicemap');
 
+function initMap(background) {
+    var indexOfResolutionFour = mapLayers[background].resolutions.indexOf(4);
+    var crs = projections(mapLayers[background].protocol, mapLayers[background].resolutions)[mapLayers[background].crs];
+    var map = L.map('map', {
+        crs: crs(),
+        zoomControl: false,
+        maxZoom: 15
+    }).setView([HelsinkiCoord.lat, HelsinkiCoord.lng], indexOfResolutionFour);
+    map.addControl(L.control.zoom({position: 'topright'}));
+    var backgroundLayer = getMapLayer(background);
+    backgroundLayer.addTo(map);
+    return map;
+}
+
 // Localisation initiation for datepickers
 moment.locale('fi');
 
@@ -111,26 +143,6 @@ function defaultQuery() {
 
     params["hearing"] = "budjetointipeli";
     getData(params, true);
-}
-
-function initMap(background) {
-    console.log(background);
-    var crs = projections[mapLayers[background].crs];
-    console.log(crs);
-    var map = L.map('map', {
-        crs: crs(),
-        zoomControl: false,
-        maxZoom: 15
-    }).setView([HelsinkiCoord.lat, HelsinkiCoord.lng], 11);
-    console.log(map);
-    map.addControl(L.control.zoom({position: 'topright'}));
-    console.log('creating background');
-    var backgroundLayer = getMapLayer(background);
-    console.log('adding background');
-    console.log(backgroundLayer);
-    backgroundLayer.addTo(map);
-    console.log('returning map');
-    return map;
 }
 
 function addLegend(params) {
@@ -175,9 +187,7 @@ function getData(params, markersVisible, heatmapVisible, onSuccess) {
     if (params.background_map) {
         // The background has changed, redraw the map due to changed crs
         map.remove();
-        console.log('init new map');
         map = initMap(params.background_map);
-        console.log('new markers');
         markersLayer = getMarkersLayer();
     }
     var hearingUrl = apiBase + "/hearing/" + params.hearing;
@@ -266,7 +276,6 @@ function getData(params, markersVisible, heatmapVisible, onSuccess) {
                     if (markersVisible) {
                         showMarkers(markersVisible);
                     }
-
                     if (heatmapVisible) {
                         showHeatmap(heatmapVisible);
                     }
