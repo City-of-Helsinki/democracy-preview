@@ -86,7 +86,7 @@ github.com/hep7agon/city-feedback-hub -->
 
             <div class="row">
                 <div class="col-xs-4">
-                    <label for="markers">Palautteet</label>
+                    <label for="toggle-markers">Palautteet</label>
                 </div>
                 <div class="col-xs-8 toggle-switch">
                     <input type="checkbox" data-toggle="toggle" id="toggle-markers" data-width="100" checked>
@@ -97,10 +97,22 @@ github.com/hep7agon/city-feedback-hub -->
 
             <div class="row">
                 <div class="col-xs-4">
-                    <label for="heatmap">Tiheyskartta</label>
+                    <label for="toggle-heatmap">Tiheyskartta</label>
                 </div>
                 <div class="col-xs-8 toggle-switch">
                     <input type="checkbox" data-toggle="toggle" id="toggle-heatmap" data-width="100">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <label for="adjust-heat">Tiheyskartan voimakkuus</label>
+                    <input id="adjust-heat"
+                           data-provide="slider"
+                           data-slider-min="0"
+                           data-slider-max="1"
+                           data-slider-step="0.05"
+                           data-slider-value="0.5"
+                    >
                 </div>
             </div>
 
@@ -194,6 +206,7 @@ github.com/hep7agon/city-feedback-hub -->
         </div>
         <div id="map" class="map-main"></div>
     </div>
+
     <script src="assets/js/map.js"></script>
     <script>
         $("body").css("margin", 0);
@@ -203,7 +216,7 @@ github.com/hep7agon/city-feedback-hub -->
 
         L.easyButton('<span class="glyphicon glyphicon-map-marker"></span>', function () {
             getUserLocation();
-        }, {position: 'topright'}).addTo(map)
+        }, {position: 'topright'}).addTo(map);
 
         defaultQuery();
 
@@ -218,6 +231,7 @@ github.com/hep7agon/city-feedback-hub -->
             color: '#fff'
         };
         var spinner = new Spinner(opts);
+        var heatSlider = $('#adjust-heat').slider();
 
         function sendRequest() {
             spinner.spin(document.getElementById("submitButton"));
@@ -244,10 +258,11 @@ github.com/hep7agon/city-feedback-hub -->
 
             var markersVisible = $('#toggle-markers').prop('checked') ? true : false;
             var heatmapVisible = $('#toggle-heatmap').prop('checked') ? true : false;
+            var heatmapValue = $('#adjust-heat').slider().slider('getValue');
 
             $('#submitButton').attr("disabled", true);
 
-            getData(params, markersVisible, heatmapVisible, function() {
+            getData(params, markersVisible, heatmapVisible, heatmapValue, function() {
                 spinner.stop();
                 $('#submitButton').attr("disabled", false);
             });
@@ -263,7 +278,16 @@ github.com/hep7agon/city-feedback-hub -->
         $(function() {
             $('#toggle-heatmap').change(function() {
                 var show = $(this).prop('checked') ? true : false;
-                showHeatmap(show);
+                var value = $('#adjust-heat').slider().slider('getValue');
+                showHeatmap(show, value);
+            })
+        })
+
+        $(function() {
+            $('#adjust-heat').change(function() {
+                var show = $('#toggle-heatmap').prop('checked') ? true : false;
+                var value = $(this).slider().slider('getValue');
+                showHeatmap(show, value);
             })
         })
     </script>

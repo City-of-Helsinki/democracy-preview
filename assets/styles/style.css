@@ -389,6 +389,10 @@
     text-align: right;
 }
 
+.slider.slider-horizontal {
+    width: 260px;
+}
+
 body {
     -webkit-font-smoothing: antialiased;
     font-family: Lato, sans-serif !important;

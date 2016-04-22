@@ -183,7 +183,7 @@ function clearMarkers() {
     markersLayer.clearLayers();
 }
 
-function getData(params, markersVisible, heatmapVisible, onSuccess) {
+function getData(params, markersVisible, heatmapVisible, heatmapValue, onSuccess) {
     if (params.background_map) {
         // The background has changed, redraw the map due to changed crs
         map.remove();
@@ -277,7 +277,7 @@ function getData(params, markersVisible, heatmapVisible, onSuccess) {
                         showMarkers(markersVisible);
                     }
                     if (heatmapVisible) {
-                        showHeatmap(heatmapVisible);
+                        showHeatmap(heatmapVisible, heatmapValue);
                     }
                     addLegend(params);
                 });
@@ -324,15 +324,16 @@ function showMarkers(show) {
     }
 }
 
-function showHeatmap(show) {
+function showHeatmap(show, value) {
     if (heatLayer) {
         map.removeLayer(heatLayer);
     }
 
     if (show) {
         heatLayer = L.heatLayer(markerCoordinates, {
-            minOpacity: 0.4,
-            maxZoom: 18,
+            max: 1,
+            minOpacity: value,
+            maxZoom: 15,
             radius: 40,
             blur: 20,
         }).addTo(map);
